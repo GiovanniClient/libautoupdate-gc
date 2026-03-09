@@ -1,18 +1,31 @@
 package moe.nea.libautoupdate;
 
 import com.google.gson.JsonElement;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 
-@Data
-@NoArgsConstructor // Keep for JSON deserializers
 public class UpdateData {
 	protected String versionName;
 	protected JsonElement versionNumber;
+
+	public String getVersionName() {
+		return versionName;
+	}
+
+	public JsonElement getVersionNumber() {
+		return versionNumber;
+	}
+
+	public String getSha256() {
+		return sha256;
+	}
+
+	public String getDownload() {
+		return download;
+	}
+
 	protected String sha256;
 	protected String download;
 

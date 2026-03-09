@@ -20,8 +20,6 @@ public class PotentialUpdate {
         this.updateUUID = UUID.randomUUID();
     }
 
-    public UUID getUpdateUUID() { return updateUUID; }
-
     public File getUpdateDirectory() {
         return new File(".autoupdates", context.identifier() + "/" + updateUUID);
     }
@@ -95,4 +93,8 @@ public class PotentialUpdate {
             return null;
         });
     }
+
+    public UpdateData getUpdate() { return update; }
+    public UpdateContext getContext() { return context; }
+    public UUID getUpdateUUID() { return updateUUID; }
 }

@@ -3,7 +3,6 @@ package moe.nea.libautoupdate.sources;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.reflect.TypeToken;
-import lombok.Getter;
 import moe.nea.libautoupdate.UpdateData;
 
 import java.util.Comparator;
@@ -14,7 +13,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-@Getter
 public class GithubReleaseUpdateSource extends JsonUpdateSource {
     private final String owner;
     private final String repository;

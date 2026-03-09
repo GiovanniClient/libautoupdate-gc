@@ -1,10 +1,6 @@
 package moe.nea.libautoupdate.sources;
 
 import com.google.gson.JsonPrimitive;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NonNull;
 import moe.nea.libautoupdate.UpdateData;
 import moe.nea.libautoupdate.UpdateSource;
 import moe.nea.libautoupdate.UpdateUtils;
@@ -17,15 +13,21 @@ import java.net.URI;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 
-@Getter
-@AllArgsConstructor
-@EqualsAndHashCode()
 public class MavenSource implements UpdateSource {
-	@NonNull String repoUrl;
-	@NonNull String module;
-	@NonNull String artifact;
-	@NonNull String classifier;
-	@NonNull String extension;
+	String repoUrl;
+	String module;
+	String artifact;
+
+	public MavenSource(String extension, String classifier, String artifact, String module, String repoUrl) {
+		this.extension = extension;
+		this.classifier = classifier;
+		this.artifact = artifact;
+		this.module = module;
+		this.repoUrl = repoUrl;
+	}
+
+	String classifier;
+	String extension;
 
 	protected URI getMavenBaseUrl() {
 		var uri = URI.create(repoUrl);

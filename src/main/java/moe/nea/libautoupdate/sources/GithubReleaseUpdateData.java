@@ -1,16 +1,10 @@
 package moe.nea.libautoupdate.sources;
 
 import com.google.gson.JsonElement;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
 import moe.nea.libautoupdate.UpdateData;
 
 import java.util.Date;
 
-@Data
-@ToString(callSuper = true)
-@EqualsAndHashCode(callSuper = true)
 public class GithubReleaseUpdateData extends UpdateData {
 
     String releaseDescription;
