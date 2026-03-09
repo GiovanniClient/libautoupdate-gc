@@ -1,46 +1,34 @@
 package moe.nea.libautoupdate;
 
-import lombok.Value;
-import lombok.val;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 
-@Value
 public class PotentialUpdate {
-    /**
-     * The update data of this update.
-     */
-    UpdateData update;
-    /**
-     * The context of this update.
-     */
-    UpdateContext context;
-    /**
-     * A UUID so that each update does not conflict which each other.
-     */
-    UUID updateUUID = UUID.randomUUID();
+    private final UpdateData update;
+    private final UpdateContext context;
+    private final UUID updateUUID;
 
-    /**
-     * @return the directory in which update data gets stored for the post exit stage.
-     */
-    public File getUpdateDirectory() {
-        return new File(".autoupdates", context.getIdentifier() + "/" + updateUUID);
+    public PotentialUpdate(UpdateData update, UpdateContext context) {
+        this.update = update;
+        this.context = context;
+        this.updateUUID = UUID.randomUUID();
     }
 
-    /**
-     * @return true if an update exists and has a higher version number than our current version.
-     */
+    public UUID getUpdateUUID() { return updateUUID; }
+
+    public File getUpdateDirectory() {
+        return new File(".autoupdates", context.identifier() + "/" + updateUUID);
+    }
+
     public boolean isUpdateAvailable() {
         if (update == null) return false;
-        return context.getCurrentVersion().isOlderThan(update.getVersionNumber());
+        return context.currentVersion().isOlderThan(update.versionNumber);
     }
 
     private File getFile(String name) {
@@ -48,86 +36,55 @@ public class PotentialUpdate {
         return new File(getUpdateDirectory(), name);
     }
 
-    /**
-     * @return the location where the updated jar will be stored.
-     */
     public File getUpdateJarStorage() {
         return getFile("next.jar");
     }
 
-    /**
-     * @return the filename of the updated jar, as specified by the {@link UpdateData#getDownload()}
-     * @throws URISyntaxException if {@link #update} contains an invalid download url.
-     */
     public String getFileName() throws URISyntaxException {
-        val fileName = update.getRawFileName();
+        var fileName = update.getRawFileName();
         return UpdateUtils.sanitizeFileName(fileName);
     }
 
-    /**
-     * Extracts the updater jar (for the post exit stage) into the storage directory.
-     */
     public void extractUpdater() throws IOException {
-        val file = getFile("updater.jar");
-        try (val from = getClass().getResourceAsStream("/updater.jar");
-             val to = new FileOutputStream(file)) {
+        var file = getFile("updater.jar");
+        try (var from = getClass().getResourceAsStream("/updater.jar");
+             var to = new FileOutputStream(file)) {
+            if (from == null) throw new IOException("Could not find updater.jar in resources");
             UpdateUtils.connect(from, to);
         }
     }
 
-    /**
-     * Download the updated jar into the storage directory.
-     */
     public void downloadUpdate() throws IOException {
-        try (val from = UpdateUtils.openUrlConnection(update.getDownloadAsURL());
-             val to = new FileOutputStream(getUpdateJarStorage())) {
+        try (var from = UpdateUtils.openUrlConnection(update.getDownloadAsURL());
+             var to = new FileOutputStream(getUpdateJarStorage())) {
             UpdateUtils.connect(from, to);
         }
-        try (val check = new FileInputStream(getUpdateJarStorage())) {
-            val updateSha = UpdateUtils.sha256sum(check);
-            if (update.getSha256() != null && !update.getSha256().equalsIgnoreCase(updateSha)) {
-                throw new UpdateException(
-                        "Hash of downloaded file " + getUpdateJarStorage() +
-                                " (" + updateSha + ") does not match expected hash of " +
-                                update.getSha256());
+        try (var check = new FileInputStream(getUpdateJarStorage())) {
+            var updateSha = UpdateUtils.sha256sum(check);
+            if (update.sha256 != null && !update.sha256.equalsIgnoreCase(updateSha)) {
+                throw new UpdateException("Hash mismatch: " + updateSha + " vs " + update.sha256);
             }
         }
     }
 
-    /**
-     * Prepare the layout of the storage directory.
-     */
     public void prepareUpdate() throws IOException {
         extractUpdater();
         downloadUpdate();
     }
 
-    /**
-     * Execute the update.
-     * This is done by first preparing the storage directory using {@link #prepareUpdate()} and then setting the {@link ExitHookInvoker}
-     */
     public void executeUpdate() throws IOException {
         prepareUpdate();
         executePreparedUpdate();
     }
 
-    /**
-     * Execute an already prepared update.
-     * Identical to {@link #executeUpdate()} if {@link #prepareUpdate()} was called beforehand.
-     */
     public void executePreparedUpdate() {
         ExitHookInvoker.setExitHook(
-                getContext().getIdentifier(),
+                context.identifier(),
                 getUpdateUUID(),
                 getFile("updater.jar"),
-                context.getTarget().generateUpdateActions(this));
+                context.target().generateUpdateActions(this));
     }
 
-    /**
-     * Execute the update in another thread.
-     *
-     * @return a future which is completed when the update is downloaded and hooked on exit.
-     */
     public CompletableFuture<Void> launchUpdate() {
         return CompletableFuture.supplyAsync(() -> {
             try {
@@ -138,5 +95,4 @@ public class PotentialUpdate {
             return null;
         });
     }
-
 }

@@ -1,5 +1,9 @@
 package moe.nea.libautoupdate;
 
+import moe.nea.libautoupdate.sources.GistSource;
+import moe.nea.libautoupdate.sources.GithubReleaseUpdateSource;
+import moe.nea.libautoupdate.sources.MavenSource;
+
 import java.util.concurrent.CompletableFuture;
 
 /**

@@ -2,7 +2,15 @@ plugins {
 	`maven-publish`
 	signing
 	java
-	id("io.freefair.lombok") version "6.5.1"
+	id("io.freefair.lombok") version "8.7.1"
+}
+
+java {
+	toolchain {
+		languageVersion.set(JavaLanguageVersion.of(21))
+	}
+	withJavadocJar()
+	withSourcesJar()
 }
 
 group = "moe.nea"
@@ -10,9 +18,8 @@ version = "1.3.1"
 
 allprojects {
 	apply(plugin = "java")
-	tasks.withType(JavaCompile::class) {
-		sourceCompatibility = "1.8"
-		targetCompatibility = "1.8"
+	tasks.withType<JavaCompile>().configureEach {
+		options.release.set(21)
 	}
 	repositories {
 		mavenCentral()
@@ -34,11 +41,14 @@ project(":updater") {
 
 dependencies {
 	@Suppress("VulnerableLibrariesLocal")
-	// We use this version of gson, because this is intended to be used for minecraft 1.8.9 (which bundles that gson version)
-	implementation("com.google.code.gson:gson:2.2.4")
-	testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.1")
-	testImplementation("org.junit.jupiter:junit-jupiter-params:5.8.1")
-	testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.1")
+	implementation("com.google.code.gson:gson:2.13.2")
+
+	// Use a modern JUnit version (5.11.4 is current for 2026)
+	val junitVersion = "5.11.4"
+	testImplementation("org.junit.jupiter:junit-jupiter:$junitVersion")
+
+	// MANDATORY for Gradle 9+: Add the JUnit Platform Launcher
+	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 java {

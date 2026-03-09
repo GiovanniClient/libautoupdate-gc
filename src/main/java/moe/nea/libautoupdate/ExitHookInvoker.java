@@ -1,5 +1,7 @@
 package moe.nea.libautoupdate;
 
+import moe.nea.libautoupdate.actions.UpdateAction;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;

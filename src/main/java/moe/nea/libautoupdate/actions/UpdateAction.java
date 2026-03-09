@@ -1,22 +1,21 @@
-package moe.nea.libautoupdate;
-
-import lombok.EqualsAndHashCode;
-import lombok.NonNull;
-import lombok.Value;
+package moe.nea.libautoupdate.actions;
 
 import java.io.File;
 import java.util.List;
+import java.util.Objects;
 
 public abstract class UpdateAction {
-    private UpdateAction() {
+    protected UpdateAction() {
     }
 
     public abstract void encode(List<String> arguments);
 
-    @Value
-    @EqualsAndHashCode(callSuper = false)
     public static class DeleteFile extends UpdateAction {
-        @NonNull File toDelete;
+        private final File toDelete;
+
+        public DeleteFile(File toDelete) {
+            this.toDelete = Objects.requireNonNull(toDelete);
+        }
 
         @Override
         public void encode(List<String> arguments) {
@@ -25,11 +24,14 @@ public abstract class UpdateAction {
         }
     }
 
-    @Value
-    @EqualsAndHashCode(callSuper = false)
     public static class MoveDownloadedFile extends UpdateAction {
-        @NonNull File whereFrom;
-        @NonNull File whereTo;
+        private final File whereFrom;
+        private final File whereTo;
+
+        public MoveDownloadedFile(File whereFrom, File whereTo) {
+            this.whereFrom = Objects.requireNonNull(whereFrom);
+            this.whereTo = Objects.requireNonNull(whereTo);
+        }
 
         @Override
         public void encode(List<String> arguments) {
@@ -38,6 +40,4 @@ public abstract class UpdateAction {
             arguments.add(whereTo.getAbsolutePath());
         }
     }
-
-
 }

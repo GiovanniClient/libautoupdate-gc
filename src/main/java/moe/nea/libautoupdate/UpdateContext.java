@@ -1,34 +1,21 @@
 package moe.nea.libautoupdate;
 
-
-import lombok.NonNull;
-import lombok.Value;
-
 import java.io.File;
 import java.io.IOException;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * The update context holds information about your application, and it's update process.
+ * The update context holds information about your application, and its update process.
  */
-@Value
-public class UpdateContext {
-    /**
-     * The source from which to pull updates.
-     */
-    @NonNull UpdateSource source;
-    /**
-     * The update target which specifies how to install an update.
-     */
-    @NonNull UpdateTarget target;
-    /**
-     * The version of this application
-     */
-    @NonNull CurrentVersion currentVersion;
-    /**
-     * An identifier for this application, as to not collide with other applications using this update lib.
-     */
-    @NonNull String identifier;
+public record UpdateContext(UpdateSource source, UpdateTarget target, CurrentVersion currentVersion,
+                            String identifier) {
+    public UpdateContext(UpdateSource source, UpdateTarget target, CurrentVersion currentVersion, String identifier) {
+        this.source = Objects.requireNonNull(source);
+        this.target = Objects.requireNonNull(target);
+        this.currentVersion = Objects.requireNonNull(currentVersion);
+        this.identifier = Objects.requireNonNull(identifier);
+    }
 
     /**
      * Delete remnants of previous updates.
@@ -51,5 +38,15 @@ public class UpdateContext {
     public CompletableFuture<PotentialUpdate> checkUpdate(String updateStream) {
         return source.checkUpdate(updateStream)
                 .thenApply(it -> new PotentialUpdate(it, this));
+    }
+
+    @Override
+    public String toString() {
+        return "UpdateContext{" +
+                "source=" + source +
+                ", target=" + target +
+                ", currentVersion=" + currentVersion +
+                ", identifier='" + identifier + '\'' +
+                '}';
     }
 }
