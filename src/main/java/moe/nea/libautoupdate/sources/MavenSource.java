@@ -2,7 +2,6 @@ package moe.nea.libautoupdate.sources;
 
 import com.google.gson.JsonPrimitive;
 import moe.nea.libautoupdate.UpdateData;
-import moe.nea.libautoupdate.UpdateSource;
 import moe.nea.libautoupdate.UpdateUtils;
 import org.w3c.dom.Element;
 import org.xml.sax.InputSource;

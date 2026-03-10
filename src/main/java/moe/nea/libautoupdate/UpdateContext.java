@@ -1,5 +1,8 @@
 package moe.nea.libautoupdate;
 
+import moe.nea.libautoupdate.sources.UpdateSource;
+import moe.nea.libautoupdate.targets.UpdateTarget;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Objects;

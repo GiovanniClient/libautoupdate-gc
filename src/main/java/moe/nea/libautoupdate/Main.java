@@ -1,5 +1,8 @@
 package moe.nea.libautoupdate;
 
+import moe.nea.libautoupdate.sources.UpdateSource;
+import moe.nea.libautoupdate.targets.UpdateTarget;
+
 public class Main {
 	public static void main(String[] args) {
 

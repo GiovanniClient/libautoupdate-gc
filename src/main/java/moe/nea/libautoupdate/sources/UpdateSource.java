@@ -1,8 +1,6 @@
-package moe.nea.libautoupdate;
+package moe.nea.libautoupdate.sources;
 
-import moe.nea.libautoupdate.sources.GistSource;
-import moe.nea.libautoupdate.sources.GithubReleaseUpdateSource;
-import moe.nea.libautoupdate.sources.MavenSource;
+import moe.nea.libautoupdate.UpdateData;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -26,6 +24,15 @@ public interface UpdateSource {
      */
     static UpdateSource githubUpdateSource(String owner, String repository) {
         return new GithubReleaseUpdateSource(owner, repository);
+    }
+
+    /**
+     * Create a GitHub update source that filters for a specific Minecraft version string.
+     *
+     * filename.contains(mcVersion)
+     */
+    static UpdateSource versionedGithubSource(String owner, String repository, String mcVersion) {
+        return new MinecraftVersionedGithubSource(owner, repository, mcVersion);
     }
 
     /**

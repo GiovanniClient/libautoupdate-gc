@@ -1,8 +1,8 @@
-package moe.nea.libautoupdate;
+package moe.nea.libautoupdate.targets;
 
+import moe.nea.libautoupdate.PotentialUpdate;
+import moe.nea.libautoupdate.UpdateUtils;
 import moe.nea.libautoupdate.actions.UpdateAction;
-import moe.nea.libautoupdate.targets.DeleteAndSaveInSameFolderUpdateTarget;
-import moe.nea.libautoupdate.targets.ReplaceJarUpdateTarget;
 
 import java.io.File;
 import java.util.List;

@@ -1,7 +1,6 @@
 package moe.nea.libautoupdate.sources;
 
 import com.google.gson.Gson;
-import moe.nea.libautoupdate.UpdateSource;
 import moe.nea.libautoupdate.UpdateUtils;
 
 import java.lang.reflect.Type;
