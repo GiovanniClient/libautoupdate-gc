@@ -14,8 +14,8 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 public class GithubReleaseUpdateSource extends JsonUpdateSource {
-    private final String owner;
-    private final String repository;
+    protected final String owner;
+    protected final String repository;
 
     public GithubReleaseUpdateSource(String owner, String repository) {
         this.owner = Objects.requireNonNull(owner);
@@ -34,22 +34,37 @@ public class GithubReleaseUpdateSource extends JsonUpdateSource {
 
     protected UpdateData findAsset(GithubRelease release) {
         if (release.assets() == null) return null;
+
         return release.assets().stream()
-                .filter(it -> (Objects.equals(it.contentType(), "application/x-java-archive")
-                        || (it.name() != null && it.name().endsWith(".jar")))
-                        && it.browserDownloadUrl() != null)
-                .map(it -> new GithubReleaseUpdateData(
-                        release.name() == null ? release.tagName() : release.name(),
-                        new JsonPrimitive(release.tagName()),
-                        null,
-                        it.browserDownloadUrl(),
-                        release.body(),
-                        release.targetCommitish(),
-                        release.createdAt(),
-                        release.publishedAt(),
-                        release.htmlUrl()
-                ))
-                .findFirst().orElse(null);
+                .filter(this::assetFilter)
+                .map(it -> mapAssetToData(release, it))
+                .findFirst()
+                .orElse(null);
+    }
+
+    protected boolean assetFilter(Download it) {
+        return (java.util.Objects.equals(it.contentType(), "application/x-java-archive")
+                || (it.name() != null && it.name().endsWith(".jar")))
+                && it.browserDownloadUrl() != null;
+    }
+
+    protected UpdateData mapAssetToData(GithubRelease release, Download it) {
+        String sha256 = it.digest();
+        if (sha256 != null && sha256.startsWith("sha256:")) {
+            sha256 = sha256.substring(7);
+        }
+
+        return new GithubReleaseUpdateData(
+                release.name() == null ? release.tagName() : release.name(),
+                new JsonPrimitive(release.tagName()),
+                sha256,
+                it.browserDownloadUrl(),
+                release.body(),
+                release.targetCommitish(),
+                release.createdAt(),
+                release.publishedAt(),
+                release.htmlUrl()
+        );
     }
 
     protected UpdateData findLatestRelease(Iterable<GithubRelease> validReleases) {
@@ -94,6 +109,11 @@ public class GithubReleaseUpdateSource extends JsonUpdateSource {
             String name,
             @SerializedName("content_type") String contentType,
             String label,
-            @SerializedName("browser_download_url") String browserDownloadUrl
+            @SerializedName("browser_download_url") String browserDownloadUrl,
+            String digest
     ) {}
+
+
+	public String getOwner() { return owner; }
+	public String getRepository() { return repository; }
 }

@@ -11,13 +11,19 @@ import java.util.concurrent.CompletionException;
 
 public class PotentialUpdate {
     private final UpdateData update;
+    private final UpdateData unfilteredUpdate; // update ignoring MC version filter
     private final UpdateContext context;
     private final UUID updateUUID;
 
-    public PotentialUpdate(UpdateData update, UpdateContext context) {
+    public PotentialUpdate(UpdateData update, UpdateData unfilteredUpdate, UpdateContext context) {
         this.update = update;
+        this.unfilteredUpdate = unfilteredUpdate;
         this.context = context;
         this.updateUUID = UUID.randomUUID();
+    }
+
+    public PotentialUpdate(UpdateData update, UpdateContext context) {
+        this(update, null, context);
     }
 
     public File getUpdateDirectory() {
@@ -27,6 +33,21 @@ public class PotentialUpdate {
     public boolean isUpdateAvailable() {
         if (update == null) return false;
         return context.currentVersion().isOlderThan(update.versionNumber);
+    }
+
+    /**
+     * Returns true if there are updates available, but only for a different
+     * Minecraft version than the one currently installed. (MinecraftVersionedGithubSource)
+     */
+    public boolean hasUpdatesForDifferentMcVersion() {
+        return update == null && unfilteredUpdate != null;
+    }
+
+    /**
+     * Returns the latest update found regardless of MC version filter, or null.
+     */
+    public UpdateData getUnfilteredUpdate() {
+        return unfilteredUpdate;
     }
 
     private File getFile(String name) {

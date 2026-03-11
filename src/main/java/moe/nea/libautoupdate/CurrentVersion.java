@@ -60,6 +60,70 @@ public interface CurrentVersion {
        };
     }
 
+    static CurrentVersion ofSemver(String version) {
+        return new CurrentVersion() {
+            @Override
+            public String display() { return version; }
+
+            @Override
+            public boolean isOlderThan(JsonElement element) {
+                if (!element.isJsonPrimitive()) return true;
+                String other = element.getAsString();
+                return compareSemver(version, other) < 0;
+            }
+
+            @Override
+            public String toString() { return "SemverVersion (" + version + ")"; }
+        };
+    }
+
+    // Handles versions like: 1.0, 1.0b, 1.1, 2.0-beta, 2.0.1
+    private static int compareSemver(String a, String b) {
+        String[] aParts = a.split("[.-]");
+        String[] bParts = b.split("[.-]");
+        int len = Math.max(aParts.length, bParts.length);
+
+        for (int i = 0; i < len; i++) {
+            String aPart = i < aParts.length ? aParts[i] : "0";
+            String bPart = i < bParts.length ? bParts[i] : "0";
+
+            int cmp = compareSegment(aPart, bPart);
+            if (cmp != 0) return cmp;
+        }
+        return 0;
+    }
+
+    private static int compareSegment(String a, String b) {
+        // Both numeric
+        try {
+            return Integer.compare(Integer.parseInt(a), Integer.parseInt(b));
+        } catch (NumberFormatException ignored) {}
+
+        // Mixed: split leading digits from trailing alpha (e.g. "1b" → 1, "b")
+        String[] aSplit = splitNumericAlpha(a);
+        String[] bSplit = splitNumericAlpha(b);
+
+        try {
+            int numCmp = Integer.compare(
+                    Integer.parseInt(aSplit[0]),
+                    Integer.parseInt(bSplit[0])
+            );
+            if (numCmp != 0) return numCmp;
+        } catch (NumberFormatException ignored) {}
+
+        return aSplit[1].compareTo(bSplit[1]);
+    }
+
+    // "1b" → ["1", "b"], "b" → ["0", "b"], "1" → ["1", ""]
+    private static String[] splitNumericAlpha(String s) {
+        int i = 0;
+        while (i < s.length() && Character.isDigit(s.charAt(i))) i++;
+        String num = i > 0 ? s.substring(0, i) : "0";
+        String alpha = s.substring(i);
+        return new String[]{num, alpha};
+    }
+
+
     /**
      * @return a user-friendly representation of this version
      */
