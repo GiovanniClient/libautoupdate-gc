@@ -1,6 +1,10 @@
-package moe.nea.libautoupdate.sources;
+package moe.nea.libautoupdate.api;
 
 import moe.nea.libautoupdate.UpdateData;
+import moe.nea.libautoupdate.source.GistSource;
+import moe.nea.libautoupdate.source.GithubReleaseUpdateSource;
+import moe.nea.libautoupdate.source.MavenSource;
+import moe.nea.libautoupdate.source.MinecraftVersionedGithubSource;
 
 import java.util.concurrent.CompletableFuture;
 

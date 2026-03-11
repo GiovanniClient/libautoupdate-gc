@@ -1,4 +1,4 @@
-package moe.nea.libautoupdate;
+package moe.nea.libautoupdate.updaters;
 
 import moe.nea.libautoupdate.targets.UpdateAction;
 

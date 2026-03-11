@@ -1,4 +1,4 @@
-package moe.nea.libautoupdate;
+package moe.nea.libautoupdate.version;
 
 import java.util.Comparator;
 

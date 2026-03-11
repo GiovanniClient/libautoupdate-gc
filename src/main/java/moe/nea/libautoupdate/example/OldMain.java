@@ -1,5 +1,6 @@
-package moe.nea.libautoupdate;
+package moe.nea.libautoupdate.example;
 
+import moe.nea.libautoupdate.UpdateContext;
 import moe.nea.libautoupdate.api.UpdateSource;
 import moe.nea.libautoupdate.api.UpdateTarget;
 import moe.nea.libautoupdate.updaters.ExitHookInvoker;
@@ -24,6 +25,6 @@ public class OldMain {
 			System.out.println("Executing update.");
 			return it.launchUpdate();
 		}).join();
-		System.out.println(ExitHookInvoker.getActionsForTesting());
+		//System.out.println(ExitHookInvoker.getActionsForTesting());
 	}
 }

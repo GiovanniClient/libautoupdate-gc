@@ -1,4 +1,4 @@
-package moe.nea.libautoupdate.sources;
+package moe.nea.libautoupdate.source;
 
 import com.google.gson.JsonPrimitive;
 import moe.nea.libautoupdate.UpdateData;

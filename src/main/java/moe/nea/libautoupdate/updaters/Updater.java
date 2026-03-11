@@ -1,10 +1,10 @@
 package moe.nea.libautoupdate.updaters;
 
-import moe.nea.libautoupdate.CurrentVersion;
+import moe.nea.libautoupdate.version.CurrentVersion;
 import moe.nea.libautoupdate.PotentialUpdate;
 import moe.nea.libautoupdate.UpdateContext;
-import moe.nea.libautoupdate.sources.UpdateSource;
-import moe.nea.libautoupdate.targets.UpdateTarget;
+import moe.nea.libautoupdate.api.UpdateSource;
+import moe.nea.libautoupdate.api.UpdateTarget;
 import java.util.concurrent.CompletableFuture;
 
 public abstract class Updater {

@@ -1,4 +1,4 @@
-package moe.nea.libautoupdate.actions;
+package moe.nea.libautoupdate.targets;
 
 import java.io.File;
 import java.util.List;

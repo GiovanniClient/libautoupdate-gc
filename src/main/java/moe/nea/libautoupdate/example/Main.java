@@ -1,10 +1,18 @@
-package moe.nea.libautoupdate;
+package moe.nea.libautoupdate.example;
 
+import moe.nea.libautoupdate.UpdateCheckResult;
 import moe.nea.libautoupdate.updaters.GithubReleasesUpdater;
 
 public class Main {
     public static void main(String[] args) {
-        var updater = new GithubReleasesUpdater("giovanniclient", "0.1", "GiovanniClient", "giovanni-client", "1.21.10", Main.class);
+        var updater = new GithubReleasesUpdater(
+                "giovanniclient",
+                "1.0",
+                "GiovanniClient",
+                "giovanni-client",
+                "1.21.10",
+                Main.class
+        );
 
         updater.checkForUpdate(GithubReleasesUpdater.UpdateStream.RELEASE).thenCompose(result -> switch (result) {
             case UpdateCheckResult.UpdateAvailable u -> {
