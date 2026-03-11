@@ -1,4 +1,4 @@
-package moe.nea.libautoupdate;
+package moe.nea.libautoupdate.util;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -9,15 +9,16 @@ public class StringSplitIteratorTest {
 	@Test
 	void testOverlappingNeedles() {
 		Assertions.assertIterableEquals(
-			Arrays.asList("abc", "1def"),
-			UpdateUtils.stringSplitIterator("abc111def", "11")
+				Arrays.asList("abc", "1def"),
+				StringUtils.splitIterator("abc111def", "11")
 		);
 	}
+
 	@Test
 	void testNoNeedle() {
 		Assertions.assertIterableEquals(
-			Arrays.asList("abc1def"),
-			UpdateUtils.stringSplitIterator("abc1def", "11")
+				Arrays.asList("abc1def"),
+				StringUtils.splitIterator("abc1def", "11")
 		);
 	}
 }

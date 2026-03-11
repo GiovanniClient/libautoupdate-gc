@@ -5,6 +5,7 @@ import moe.nea.libautoupdate.UpdateData;
 import moe.nea.libautoupdate.api.UpdateSource;
 import moe.nea.libautoupdate.util.FileUtils;
 import moe.nea.libautoupdate.util.HttpClient;
+import moe.nea.libautoupdate.util.StringUtils;
 import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
 
@@ -67,9 +68,8 @@ public class MavenSource implements UpdateSource {
 
 	URI getMavenBaseUrl() {
 		URI uri = URI.create(repoUrl);
-		for (String part :
-				FileUtils.urlEncode(module).split("\\.")) {
-			uri = uri.resolve(part + "/");
+		for (String part : StringUtils.splitIterator(module, ".")) {
+			uri = uri.resolve(FileUtils.urlEncode(part) + "/");
 		}
 		return uri.resolve(FileUtils.urlEncode(artifact) + "/");
 	}
