@@ -1,7 +1,9 @@
 package moe.nea.libautoupdate;
 
-import moe.nea.libautoupdate.sources.UpdateSource;
-import moe.nea.libautoupdate.targets.UpdateTarget;
+import moe.nea.libautoupdate.api.UpdateSource;
+import moe.nea.libautoupdate.api.UpdateTarget;
+import moe.nea.libautoupdate.updaters.ExitHookInvoker;
+import moe.nea.libautoupdate.version.CurrentVersion;
 
 public class OldMain {
 	public static void main(String[] args) {
