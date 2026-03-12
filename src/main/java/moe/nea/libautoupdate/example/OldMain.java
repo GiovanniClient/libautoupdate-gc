@@ -3,7 +3,7 @@ package moe.nea.libautoupdate.example;
 import moe.nea.libautoupdate.UpdateContext;
 import moe.nea.libautoupdate.api.UpdateSource;
 import moe.nea.libautoupdate.api.UpdateTarget;
-import moe.nea.libautoupdate.updaters.ExitHookInvoker;
+import moe.nea.libautoupdate.source.UpdateStream;
 import moe.nea.libautoupdate.version.CurrentVersion;
 
 public class OldMain {
@@ -19,7 +19,7 @@ public class OldMain {
 		System.out.println("Update cleaned");
 		System.out.println("Created update context: " + updater);
 		String stream = "pre";
-		updater.checkUpdate(stream).thenCompose(it -> {
+		updater.checkUpdate(UpdateStream.RELEASE).thenCompose(it -> {
 			System.out.println("Checked for update on " + stream + ": " + it);
 			System.out.println("Can update: " + it.isUpdateAvailable());
 			System.out.println("Executing update.");

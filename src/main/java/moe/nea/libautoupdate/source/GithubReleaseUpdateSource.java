@@ -22,11 +22,11 @@ public class GithubReleaseUpdateSource extends JsonUpdateSource {
         this.repository = Objects.requireNonNull(repository);
     }
 
-    protected UpdateData selectUpdate(String updateStream, List<GithubRelease> releases) {
-        if (Objects.equals("pre", updateStream)) {
+    protected UpdateData selectUpdate(UpdateStream updateStream, List<GithubRelease> releases) {
+        if (updateStream == UpdateStream.PRERELEASE) {
             return findLatestRelease(releases.stream().filter(it -> !it.draft()).collect(Collectors.toList()));
         }
-        if (Objects.equals("full", updateStream)) {
+        if (updateStream == UpdateStream.RELEASE) {
             return findLatestRelease(releases.stream().filter(it -> !it.draft() && !it.prerelease()).collect(Collectors.toList()));
         }
         return null;
@@ -79,7 +79,7 @@ public class GithubReleaseUpdateSource extends JsonUpdateSource {
     }
 
     @Override
-    public CompletableFuture<UpdateData> checkUpdate(String updateStream) {
+    public CompletableFuture<UpdateData> checkUpdate(UpdateStream updateStream) {
         CompletableFuture<List<GithubRelease>> releases = getJsonFromURL(
                 getReleaseApiUrl(),
                 new TypeToken<List<GithubRelease>>() {}.getType()

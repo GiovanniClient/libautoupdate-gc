@@ -15,7 +15,7 @@ public class GistSource extends JsonUpdateSource {
     }
 
     @Override
-    public CompletableFuture<UpdateData> checkUpdate(String updateStream) {
+    public CompletableFuture<UpdateData> checkUpdate(UpdateStream updateStream) {
         return getJsonFromURL(String.format(GIST_RAW_URL, owner, gistId, updateStream), UpdateData.class);
     }
 }

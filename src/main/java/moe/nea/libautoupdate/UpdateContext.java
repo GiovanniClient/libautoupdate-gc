@@ -2,6 +2,7 @@ package moe.nea.libautoupdate;
 
 import moe.nea.libautoupdate.api.UpdateSource;
 import moe.nea.libautoupdate.api.UpdateTarget;
+import moe.nea.libautoupdate.source.UpdateStream;
 import moe.nea.libautoupdate.util.FileUtils;
 import moe.nea.libautoupdate.version.CurrentVersion;
 
@@ -24,7 +25,8 @@ public record UpdateContext(
     }
 
     public void cleanup() {
-        File file = new File(".autoupdates", identifier).getAbsoluteFile();
+        File file = new File(".autoupdates", identifier)
+                .getAbsoluteFile();
         try {
             FileUtils.deleteRecursively(file.toPath());
         } catch (IOException e) {
@@ -32,8 +34,10 @@ public record UpdateContext(
         }
     }
 
-    public CompletableFuture<PotentialUpdate> checkUpdate(String updateStream) {
-        return source.checkUpdate(updateStream)
+    public CompletableFuture<PotentialUpdate> checkUpdate(
+            UpdateStream stream
+    ) {
+        return source.checkUpdate(stream)
                 .thenApply(it -> new PotentialUpdate(it, this));
     }
 

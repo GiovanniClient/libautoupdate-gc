@@ -1,10 +1,8 @@
 package moe.nea.libautoupdate.api;
 
 import moe.nea.libautoupdate.UpdateData;
-import moe.nea.libautoupdate.source.GistSource;
-import moe.nea.libautoupdate.source.GithubReleaseUpdateSource;
-import moe.nea.libautoupdate.source.MavenSource;
-import moe.nea.libautoupdate.source.MinecraftVersionedGithubSource;
+import moe.nea.libautoupdate.source.*;
+import moe.nea.libautoupdate.updaters.GithubReleasesUpdater;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -35,5 +33,5 @@ public interface UpdateSource {
         );
     }
 
-    CompletableFuture<UpdateData> checkUpdate(String updateStream);
+    CompletableFuture<UpdateData> checkUpdate(UpdateStream stream);
 }

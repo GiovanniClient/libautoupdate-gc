@@ -92,7 +92,7 @@ public class MavenSource implements UpdateSource {
 	}
 
 	@Override
-	public CompletableFuture<UpdateData> checkUpdate(String stream) {
+	public CompletableFuture<UpdateData> checkUpdate(UpdateStream stream) {
 		return CompletableFuture.supplyAsync(() -> {
 			try {
 				var dbf = DocumentBuilderFactory.newInstance();

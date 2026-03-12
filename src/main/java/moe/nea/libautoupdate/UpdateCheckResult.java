@@ -11,7 +11,7 @@ public sealed interface UpdateCheckResult {
     ) implements UpdateCheckResult {}
 
     record DifferentMcVersionOnly(
-            UpdateData latestAvailable
+            PotentialUpdate latestAvailable
     ) implements UpdateCheckResult {}
 
     default boolean isUpdateAvailable() {

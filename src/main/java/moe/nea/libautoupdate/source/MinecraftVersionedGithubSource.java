@@ -28,7 +28,7 @@ public class MinecraftVersionedGithubSource extends GithubReleaseUpdateSource {
      * Same as {@link #checkUpdate} but without the MC version filter applied,
      * used to detect updates that exist for other Minecraft versions.
      */
-    public CompletableFuture<UpdateData> checkUpdateUnfiltered(String updateStream) {
+    public CompletableFuture<UpdateData> checkUpdateUnfiltered(UpdateStream updateStream) {
         // Temporarily bypass our filter by delegating to the parent implementation
         return new GithubReleaseUpdateSource(getOwner(), getRepository())
                 .checkUpdate(updateStream);

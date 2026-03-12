@@ -2,34 +2,25 @@ package moe.nea.libautoupdate.updaters;
 
 import moe.nea.libautoupdate.*;
 import moe.nea.libautoupdate.source.MinecraftVersionedGithubSource;
+import moe.nea.libautoupdate.source.UpdateStream;
+import moe.nea.libautoupdate.version.CurrentVersion;
 
 import java.util.concurrent.CompletableFuture;
 
 public class GithubReleasesUpdater extends Updater {
-    public enum UpdateStream {
-        RELEASE("full"),
-        PRERELEASE("pre");
 
-        private final String internalName;
-        UpdateStream(String name) { this.internalName = name; }
-        public String getInternalName() { return internalName; }
+    public GithubReleasesUpdater(String modId, String currentVersion, String owner,
+                                 String repo, String versionFilter, Class<?> modClass) {
+        super(modId, currentVersion, new MinecraftVersionedGithubSource(owner, repo, versionFilter), modClass);
     }
 
-    public GithubReleasesUpdater(
-            String modId,
-            String currentVersion,
-            String owner,
-            String repo,
-            String versionFilter,
-            Class<?> modClass
-    ) {
-        super(
-                modId,
-                currentVersion,
-                new MinecraftVersionedGithubSource(
-                        owner, repo, versionFilter
-                ),
-                modClass
+    @Override
+    protected UpdateContext createContext() {
+        return new UpdateContext(
+                source,
+                target,
+                CurrentVersion.ofSemver(currentVersion),
+                modId
         );
     }
 
@@ -41,19 +32,31 @@ public class GithubReleasesUpdater extends Updater {
                 (MinecraftVersionedGithubSource) this.source;
 
         CompletableFuture<UpdateData> filtered =
-                versionedSource.checkUpdate(stream.getInternalName());
+                versionedSource.checkUpdate(stream);
         CompletableFuture<UpdateData> unfiltered =
-                versionedSource.checkUpdateUnfiltered(stream.getInternalName());
+                versionedSource.checkUpdateUnfiltered(stream);
 
         return filtered.thenCombine(unfiltered, (f, u) -> {
-            PotentialUpdate potential = new PotentialUpdate(f, context);
+            // Case 1: Update available for current MC version
+            if (f != null
+                    && context.currentVersion()
+                    .isOlderThan(f.getVersionNumber())) {
+                return new UpdateCheckResult.UpdateAvailable(
+                        new PotentialUpdate(f, context)
+                );
+            }
 
-            if (potential.isUpdateAvailable()) {
-                return new UpdateCheckResult.UpdateAvailable(potential);
+            // Case 2: Update available for different MC version,
+            // AND it's newer than current version
+            if (f == null && u != null
+                    && context.currentVersion()
+                    .isOlderThan(u.getVersionNumber())) {
+                return new UpdateCheckResult.DifferentMcVersionOnly(
+                        new PotentialUpdate(u, context)
+                );
             }
-            if (f == null && u != null) {
-                return new UpdateCheckResult.DifferentMcVersionOnly(u);
-            }
+
+            // Case 3: Already up to date
             return new UpdateCheckResult.UpToDate();
         });
     }
