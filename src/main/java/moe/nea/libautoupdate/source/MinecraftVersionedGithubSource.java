@@ -29,8 +29,21 @@ public class MinecraftVersionedGithubSource extends GithubReleaseUpdateSource {
      * used to detect updates that exist for other Minecraft versions.
      */
     public CompletableFuture<UpdateData> checkUpdateUnfiltered(UpdateStream updateStream) {
-        // Temporarily bypass our filter by delegating to the parent implementation
-        return new GithubReleaseUpdateSource(getOwner(), getRepository())
-                .checkUpdate(updateStream);
+        return checkUpdateUnfilteredFromReleases(updateStream, fetchReleases());
+    }
+
+    public CompletableFuture<VersionedUpdateData> checkVersionedUpdate(UpdateStream updateStream) {
+        var releases = fetchReleases();
+        return checkUpdateFromReleases(updateStream, releases)
+                .thenCombine(
+                        checkUpdateUnfilteredFromReleases(updateStream, releases),
+                        VersionedUpdateData::new
+                );
+    }
+
+    public record VersionedUpdateData(
+            UpdateData currentMinecraftVersion,
+            UpdateData anyMinecraftVersion
+    ) {
     }
 }

@@ -10,29 +10,78 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 public class GithubReleaseUpdateSource extends JsonUpdateSource {
     protected final String owner;
     protected final String repository;
 
     public GithubReleaseUpdateSource(String owner, String repository) {
-        this.owner = Objects.requireNonNull(owner);
-        this.repository = Objects.requireNonNull(repository);
+        this.owner = Objects.requireNonNull(owner, "owner");
+        this.repository = Objects.requireNonNull(repository, "repository");
+    }
+
+    @Override
+    public CompletableFuture<UpdateData> checkUpdate(UpdateStream updateStream) {
+        return checkUpdateFromReleases(updateStream, fetchReleases());
+    }
+
+    protected CompletableFuture<List<GithubRelease>> fetchReleases() {
+        return getJsonFromURL(
+                getReleaseApiUrl(),
+                new TypeToken<List<GithubRelease>>() {}.getType()
+        );
+    }
+
+    protected CompletableFuture<UpdateData> checkUpdateFromReleases(
+            UpdateStream updateStream,
+            CompletableFuture<List<GithubRelease>> releases
+    ) {
+        return releases.thenApply(it -> it == null ? null : selectUpdate(updateStream, it));
+    }
+
+    protected CompletableFuture<UpdateData> checkUpdateUnfilteredFromReleases(
+            UpdateStream updateStream,
+            CompletableFuture<List<GithubRelease>> releases
+    ) {
+        return releases.thenApply(it -> it == null ? null : selectUnfilteredUpdate(updateStream, it));
     }
 
     protected UpdateData selectUpdate(UpdateStream updateStream, List<GithubRelease> releases) {
         if (updateStream == UpdateStream.PRERELEASE) {
-            return findLatestRelease(releases.stream().filter(it -> !it.draft()).collect(Collectors.toList()));
+            return findLatestAsset(releases.stream()
+                    .filter(it -> !it.draft())
+                    .toList());
         }
+
         if (updateStream == UpdateStream.RELEASE) {
-            return findLatestRelease(releases.stream().filter(it -> !it.draft() && !it.prerelease()).collect(Collectors.toList()));
+            return findLatestAsset(releases.stream()
+                    .filter(it -> !it.draft() && !it.prerelease())
+                    .toList());
         }
+
         return null;
     }
 
-    protected UpdateData findAsset(GithubRelease release) {
+    protected UpdateData selectUnfilteredUpdate(
+            UpdateStream updateStream,
+            List<GithubRelease> releases
+    ) {
+        return new GithubReleaseUpdateSource(owner, repository)
+                .selectUpdate(updateStream, releases);
+    }
+
+    protected UpdateData findLatestAsset(List<GithubRelease> validReleases) {
+        return validReleases.stream()
+                .map(this::findAsset)
+                .filter(Objects::nonNull)
+                .max(Comparator.comparing(
+                        GithubReleaseUpdateData::getPublishedAt,
+                        Comparator.nullsFirst(Comparator.naturalOrder())
+                ))
+                .orElse(null);
+    }
+
+    protected GithubReleaseUpdateData findAsset(GithubRelease release) {
         if (release.assets() == null) return null;
 
         return release.assets().stream()
@@ -42,23 +91,23 @@ public class GithubReleaseUpdateSource extends JsonUpdateSource {
                 .orElse(null);
     }
 
-    protected boolean assetFilter(Download it) {
-        return (java.util.Objects.equals(it.contentType(), "application/x-java-archive")
-                || (it.name() != null && it.name().endsWith(".jar")))
-                && it.browserDownloadUrl() != null;
+    protected boolean assetFilter(Download asset) {
+        return (Objects.equals(asset.contentType(), "application/x-java-archive")
+                || (asset.name() != null && asset.name().endsWith(".jar")))
+                && asset.browserDownloadUrl() != null;
     }
 
-    protected UpdateData mapAssetToData(GithubRelease release, Download it) {
-        String sha256 = it.digest();
+    protected GithubReleaseUpdateData mapAssetToData(GithubRelease release, Download asset) {
+        String sha256 = asset.digest();
         if (sha256 != null && sha256.startsWith("sha256:")) {
-            sha256 = sha256.substring(7);
+            sha256 = sha256.substring("sha256:".length());
         }
 
         return new GithubReleaseUpdateData(
                 release.name() == null ? release.tagName() : release.name(),
                 new JsonPrimitive(release.tagName()),
                 sha256,
-                it.browserDownloadUrl(),
+                asset.browserDownloadUrl(),
                 release.body(),
                 release.targetCommitish(),
                 release.createdAt(),
@@ -67,29 +116,22 @@ public class GithubReleaseUpdateSource extends JsonUpdateSource {
         );
     }
 
-    protected UpdateData findLatestRelease(Iterable<GithubRelease> validReleases) {
-        return StreamSupport.stream(validReleases.spliterator(), false)
-                .max(Comparator.comparing(GithubRelease::publishedAt))
-                .map(this::findAsset)
-                .orElse(null);
-    }
-
     protected String getReleaseApiUrl() {
-        return String.format("https://api.github.com/repos/%s/%s/releases", owner, repository);
-    }
-
-    @Override
-    public CompletableFuture<UpdateData> checkUpdate(UpdateStream updateStream) {
-        CompletableFuture<List<GithubRelease>> releases = getJsonFromURL(
-                getReleaseApiUrl(),
-                new TypeToken<List<GithubRelease>>() {}.getType()
+        return String.format(
+                "https://api.github.com/repos/%s/%s/releases",
+                owner,
+                repository
         );
-        return releases.thenApply(it -> it == null ? null : selectUpdate(updateStream, it));
     }
 
-    /**
-     * Using Records for JSON Mapping (Java 21 + Gson 2.10+)
-     */
+    public String getOwner() {
+        return owner;
+    }
+
+    public String getRepository() {
+        return repository;
+    }
+
     public record GithubRelease(
             @SerializedName("tag_name") String tagName,
             @SerializedName("target_commitish") String targetCommitish,
@@ -112,8 +154,4 @@ public class GithubReleaseUpdateSource extends JsonUpdateSource {
             @SerializedName("browser_download_url") String browserDownloadUrl,
             String digest
     ) {}
-
-
-	public String getOwner() { return owner; }
-	public String getRepository() { return repository; }
 }
