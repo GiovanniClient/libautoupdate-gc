@@ -1,23 +1,13 @@
 package moe.nea.libautoupdate.api;
 
 import moe.nea.libautoupdate.UpdateData;
-import moe.nea.libautoupdate.source.*;
-import moe.nea.libautoupdate.updaters.GithubReleasesUpdater;
+import moe.nea.libautoupdate.source.GithubReleaseUpdateSource;
+import moe.nea.libautoupdate.source.MinecraftVersionedGithubSource;
+import moe.nea.libautoupdate.source.UpdateStream;
 
 import java.util.concurrent.CompletableFuture;
 
 public interface UpdateSource {
-
-    static MavenSource mavenSource(
-            String repository, String moduleId, String artifactId
-    ) {
-        return MavenSource.builder(repository, moduleId, artifactId)
-                .build();
-    }
-
-    static UpdateSource gistSource(String owner, String gistId) {
-        return new GistSource(owner, gistId);
-    }
 
     static UpdateSource githubUpdateSource(
             String owner, String repository

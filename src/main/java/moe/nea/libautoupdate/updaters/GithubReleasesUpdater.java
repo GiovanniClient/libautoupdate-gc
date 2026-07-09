@@ -31,13 +31,10 @@ public class GithubReleasesUpdater extends Updater {
         MinecraftVersionedGithubSource versionedSource =
                 (MinecraftVersionedGithubSource) this.source;
 
-        CompletableFuture<UpdateData> filtered =
-                versionedSource.checkUpdate(stream);
-        CompletableFuture<UpdateData> unfiltered =
-                versionedSource.checkUpdateUnfiltered(stream);
+        return versionedSource.checkVersionedUpdate(stream).thenApply(update -> {
+            UpdateData f = update.currentMinecraftVersion();
+            UpdateData u = update.anyMinecraftVersion();
 
-        return filtered.thenCombine(unfiltered, (f, u) -> {
-            // Case 1: Update available for current MC version
             if (f != null
                     && context.currentVersion()
                     .isOlderThan(f.getVersionNumber())) {
@@ -46,8 +43,6 @@ public class GithubReleasesUpdater extends Updater {
                 );
             }
 
-            // Case 2: Update available for different MC version,
-            // AND it's newer than current version
             if (f == null && u != null
                     && context.currentVersion()
                     .isOlderThan(u.getVersionNumber())) {
@@ -56,7 +51,6 @@ public class GithubReleasesUpdater extends Updater {
                 );
             }
 
-            // Case 3: Already up to date
             return new UpdateCheckResult.UpToDate();
         });
     }
