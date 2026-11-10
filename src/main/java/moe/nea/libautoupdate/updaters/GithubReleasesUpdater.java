@@ -43,7 +43,7 @@ public class GithubReleasesUpdater extends Updater {
                 );
             }
 
-            if (f == null && u != null
+            if (u != null
                     && context.currentVersion()
                     .isOlderThan(u.getVersionNumber())) {
                 return new UpdateCheckResult.DifferentMcVersionOnly(
