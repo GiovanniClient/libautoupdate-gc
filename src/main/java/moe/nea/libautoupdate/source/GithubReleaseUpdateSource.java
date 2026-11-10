@@ -8,6 +8,7 @@ import moe.nea.libautoupdate.UpdateData;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
@@ -92,6 +93,9 @@ public class GithubReleaseUpdateSource extends JsonUpdateSource {
     }
 
     protected boolean assetFilter(Download asset) {
+        if (asset.name() != null && asset.name().toLowerCase(Locale.ROOT).endsWith("-sources.jar")) {
+            return false;
+        }
         return (Objects.equals(asset.contentType(), "application/x-java-archive")
                 || (asset.name() != null && asset.name().endsWith(".jar")))
                 && asset.browserDownloadUrl() != null;
